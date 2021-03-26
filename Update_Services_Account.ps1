@@ -29,15 +29,26 @@ $LoadOrderGroupDependencies,
 $ServiceDependencies
 
 #>
-
+# Enter your input to these parameters
 $server = 'server name'
-$user='AccountName'
-$password= 'Password'
+$service= 'service name'
+$user='service account'
+$password= 'Pass$$'
+
+#Get current user on the service
+$C_user = (Get-WmiObject Win32_Service -Filter "Name='$service'" -ComputerName $server).StartName
 
 ##Change log on as account and password
+# check to make sure the current service account is same before update the password
+if($user -eq $C_user)
+{
+    $Srv = Get-WmiObject Win32_service -computer $server -filter "name='$service'"
+    $Srv.Change($null,$null,$null,$null,$null,$null,$user,$password)
+}
 
-$Srv = Get-WmiObject Win32_service -computer $server -filter "name='JAMSAgent'"
-$Srv.Change($null,$null,$null,$null,$null,$null,$user,$password)
-
+else
+{
+ Write-Output 'Service account not match'
+}
 # Change to Local System
 # $LocalSrv.Change($null,$null,$null,$null,$null,$null,"LocalSystem",$null)
